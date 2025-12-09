@@ -4,11 +4,6 @@ import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 
-
-/**
- * MainActivity - Punto de entrada de la aplicación
- * Configura la vista del juego y gestiona el ciclo de vida
- */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var gameView: GameView
