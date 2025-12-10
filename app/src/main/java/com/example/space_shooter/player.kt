@@ -16,8 +16,8 @@ class Player(
     private val bitmap: Bitmap
 ) {
 
-    val width = 80f
-    val height = 100f
+    val width = 240f
+    val height = 300f
 
     private var targetX = x
     private val speed = 800f // píxeles por segundo

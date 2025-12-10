@@ -11,8 +11,8 @@ class Bullet(
     private val screenHeight: Int
 ) {
 
-    val width = 10f
-    val height = 30f
+    val width = 30f
+    val height = 90f
 
     private val speed = 900f
     var isDestroyed = false

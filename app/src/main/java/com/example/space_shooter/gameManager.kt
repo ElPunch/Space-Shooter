@@ -38,13 +38,10 @@ class GameManager(private val gameView: GameView) {
     private var isShooting = false
 
     private var spawnTimer = 0f
-    private var spawnInterval = 2.5f
-    private var enemiesPerWave = 1
+    private val spawnInterval = 1.5f // Generación constante cada 1.5s
 
     private var score = 0
     private var lives = 3
-    private var wave = 1
-    private var enemiesKilled = 0
 
     private val startButton = Rect()
     private val continueButton = Rect()
@@ -62,9 +59,9 @@ class GameManager(private val gameView: GameView) {
         val originalEnemyBitmap = BitmapFactory.decodeResource(gameView.context.resources, R.drawable.nave_enemiga)
         val originalBackgroundBitmap = BitmapFactory.decodeResource(gameView.context.resources, R.drawable.fonde_del_juego)
 
-        // Escalar a tamaños definidos (Player 80x100, Enemy 70x70)
-        playerBitmap = Bitmap.createScaledBitmap(originalPlayerBitmap, 80, 100, false)
-        enemyBitmap = Bitmap.createScaledBitmap(originalEnemyBitmap, 70, 70, false)
+        // Escalar a tamaños definidos (3x más grandes)
+        playerBitmap = Bitmap.createScaledBitmap(originalPlayerBitmap, 240, 300, false)
+        enemyBitmap = Bitmap.createScaledBitmap(originalEnemyBitmap, 210, 210, false)
         backgroundBitmap = Bitmap.createScaledBitmap(originalBackgroundBitmap, screenWidth, screenHeight, false)
 
         player = Player(screenWidth / 2f, screenHeight - 200f, screenWidth, screenHeight, playerBitmap)
@@ -156,25 +153,17 @@ class GameManager(private val gameView: GameView) {
         checkCollisions()
 
         if (enemies.isEmpty() && spawnTimer > spawnInterval - 0.5f) {
-            nextWave()
+            // Ya no hay oleadas, spawn continuo
         }
     }
 
     private fun spawnEnemies() {
-        for (i in 0 until enemiesPerWave) {
-            val x = (Math.random() * (screenWidth - 100) + 50).toFloat()
-            val enemy = Enemy(x, -100f, screenWidth, screenHeight, enemyBitmap)
-            enemies.add(enemy)
-        }
+        val x = (Math.random() * (screenWidth - 210) + 50).toFloat()
+        val enemy = Enemy(x, -210f, screenWidth, screenHeight, enemyBitmap)
+        enemies.add(enemy)
     }
 
-    private fun nextWave() {
-        wave++
-        if (wave % 2 == 0) {
-            enemiesPerWave++
-        }
-        spawnInterval = Math.max(1.5f, spawnInterval - 0.15f)
-    }
+
 
     private fun checkCollisions() {
         val bulletsToRemove = mutableListOf<Bullet>()
@@ -193,7 +182,6 @@ class GameManager(private val gameView: GameView) {
                     explosions.add(Explosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2))
 
                     score += 10
-                    enemiesKilled++
                     break
                 }
             }
@@ -287,7 +275,6 @@ class GameManager(private val gameView: GameView) {
 
         canvas.drawText("Score: $score", 30f, 60f, paint)
         canvas.drawText("Lives: $lives", 30f, 120f, paint)
-        canvas.drawText("Wave: $wave", 30f, 180f, paint)
     }
 
     private fun renderPaused(canvas: Canvas, paint: Paint) {
@@ -334,7 +321,6 @@ class GameManager(private val gameView: GameView) {
         paint.color = Color.WHITE
         paint.textSize = 50f
         canvas.drawText("Score Final: $score", screenWidth / 2f, screenHeight / 2.5f, paint)
-        canvas.drawText("Wave alcanzada: $wave", screenWidth / 2f, screenHeight / 2.2f, paint)
 
         paint.color = Color.CYAN
         canvas.drawRect(menuButton, paint)
@@ -404,10 +390,6 @@ class GameManager(private val gameView: GameView) {
     private fun startGame() {
         score = 0
         lives = 3
-        wave = 1
-        enemiesKilled = 0
-        spawnInterval = 2.5f
-        enemiesPerWave = 1
         spawnTimer = 0f
         shootTimer = 0f
         isShooting = false
@@ -424,7 +406,7 @@ class GameManager(private val gameView: GameView) {
 
     private fun shoot() {
         val bullet = Bullet(
-            player.x + player.width / 2 - 5,
+            player.x + player.width / 2 - 15, // Centrado (ancho bala / 2)
             player.y,
             screenWidth,
             screenHeight

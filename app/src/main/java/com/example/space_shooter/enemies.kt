@@ -13,8 +13,8 @@ class Enemy(
     private val bitmap: Bitmap
 ) {
 
-    val width = 70f
-    val height = 70f
+    val width = 210f
+    val height = 210f
 
     // Velocidad más lenta: 100-180 en lugar de 200-350
     private val baseSpeed = 100f
