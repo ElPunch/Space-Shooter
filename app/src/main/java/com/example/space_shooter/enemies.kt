@@ -1,5 +1,6 @@
 package com.example.space_shooter
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -8,7 +9,8 @@ class Enemy(
     var x: Float,
     var y: Float,
     private val screenWidth: Int,
-    private val screenHeight: Int
+    private val screenHeight: Int,
+    private val bitmap: Bitmap
 ) {
 
     val width = 70f
@@ -35,42 +37,7 @@ class Enemy(
     }
 
     fun render(canvas: Canvas, paint: Paint) {
-        paint.color = Color.RED
-        paint.style = Paint.Style.FILL
-
-        val centerX = x + width / 2
-        val centerY = y + height / 2
-        val size = width / 2
-
-        val path = android.graphics.Path()
-        for (i in 0..7) {
-            val angle = Math.PI * 2 * i / 8 - Math.PI / 2
-            val px = centerX + (size * Math.cos(angle)).toFloat()
-            val py = centerY + (size * Math.sin(angle)).toFloat()
-
-            if (i == 0) {
-                path.moveTo(px, py)
-            } else {
-                path.lineTo(px, py)
-            }
-        }
-        path.close()
-
-        canvas.drawPath(path, paint)
-
-        paint.color = Color.rgb(139, 0, 0)
-        canvas.drawCircle(centerX, centerY, size / 2, paint)
-
-        paint.color = Color.BLACK
-        canvas.drawCircle(centerX - 12, centerY - 8, 6f, paint)
-        canvas.drawCircle(centerX + 12, centerY - 8, 6f, paint)
-
-        paint.color = Color.rgb(255, 100, 100)
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 3f
-        canvas.drawPath(path, paint)
-
-        paint.style = Paint.Style.FILL
+        canvas.drawBitmap(bitmap, x, y, paint)
     }
 
     fun destroy() {

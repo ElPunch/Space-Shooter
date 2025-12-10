@@ -1,7 +1,7 @@
 package com.example.space_shooter
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 
 /**
@@ -12,7 +12,8 @@ class Player(
     var x: Float,
     var y: Float,
     private val screenWidth: Int,
-    private val screenHeight: Int
+    private val screenHeight: Int,
+    private val bitmap: Bitmap
 ) {
 
     val width = 80f
@@ -74,34 +75,7 @@ class Player(
      * Renderiza la nave del jugador
      */
     fun render(canvas: Canvas, paint: Paint) {
-        // Cuerpo principal (triángulo)
-        paint.color = Color.CYAN
-        paint.style = Paint.Style.FILL
-
-        val path = android.graphics.Path()
-        path.moveTo(x + width / 2, y) // Punta superior
-        path.lineTo(x, y + height) // Esquina inferior izquierda
-        path.lineTo(x + width, y + height) // Esquina inferior derecha
-        path.close()
-
-        canvas.drawPath(path, paint)
-
-        // Cabina (círculo pequeño)
-        paint.color = Color.BLUE
-        canvas.drawCircle(x + width / 2, y + height / 3, 15f, paint)
-
-        // Alas
-        paint.color = Color.GRAY
-        canvas.drawRect(x - 10, y + height - 30, x + 10, y + height - 10, paint)
-        canvas.drawRect(x + width - 10, y + height - 30, x + width + 10, y + height - 10, paint)
-
-        // Borde
-        paint.color = Color.WHITE
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 3f
-        canvas.drawPath(path, paint)
-
-        paint.style = Paint.Style.FILL
+        canvas.drawBitmap(bitmap, x, y, paint)
     }
 
     /**

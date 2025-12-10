@@ -76,7 +76,8 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback 
      */
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
-        canvas.drawColor(Color.BLACK)
+        // Fondo manejado en GameManager
+
 
         gameManager.render(canvas, paint)
     }

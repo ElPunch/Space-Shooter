@@ -1,5 +1,7 @@
 package com.example.space_shooter
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -24,6 +26,11 @@ class GameManager(private val gameView: GameView) {
     private val bullets = mutableListOf<Bullet>()
     private val enemies = mutableListOf<Enemy>()
     private val explosions = mutableListOf<Explosion>()
+
+    // Bitmaps
+    private lateinit var playerBitmap: Bitmap
+    private lateinit var enemyBitmap: Bitmap
+    private lateinit var backgroundBitmap: Bitmap
 
     // Sistema de disparo automático
     private var shootTimer = 0f
@@ -50,7 +57,17 @@ class GameManager(private val gameView: GameView) {
         screenWidth = width
         screenHeight = height
 
-        player = Player(screenWidth / 2f, screenHeight - 200f, screenWidth, screenHeight)
+        // Cargar y escalar recursos
+        val originalPlayerBitmap = BitmapFactory.decodeResource(gameView.context.resources, R.drawable.nave_jugador)
+        val originalEnemyBitmap = BitmapFactory.decodeResource(gameView.context.resources, R.drawable.nave_enemiga)
+        val originalBackgroundBitmap = BitmapFactory.decodeResource(gameView.context.resources, R.drawable.fonde_del_juego)
+
+        // Escalar a tamaños definidos (Player 80x100, Enemy 70x70)
+        playerBitmap = Bitmap.createScaledBitmap(originalPlayerBitmap, 80, 100, false)
+        enemyBitmap = Bitmap.createScaledBitmap(originalEnemyBitmap, 70, 70, false)
+        backgroundBitmap = Bitmap.createScaledBitmap(originalBackgroundBitmap, screenWidth, screenHeight, false)
+
+        player = Player(screenWidth / 2f, screenHeight - 200f, screenWidth, screenHeight, playerBitmap)
 
         val buttonWidth = 400
         val buttonHeight = 120
@@ -146,7 +163,7 @@ class GameManager(private val gameView: GameView) {
     private fun spawnEnemies() {
         for (i in 0 until enemiesPerWave) {
             val x = (Math.random() * (screenWidth - 100) + 50).toFloat()
-            val enemy = Enemy(x, -100f, screenWidth, screenHeight)
+            val enemy = Enemy(x, -100f, screenWidth, screenHeight, enemyBitmap)
             enemies.add(enemy)
         }
     }
@@ -214,6 +231,9 @@ class GameManager(private val gameView: GameView) {
     }
 
     fun render(canvas: Canvas, paint: Paint) {
+        // Dibujar fondo persistente
+        canvas.drawBitmap(backgroundBitmap, 0f, 0f, null)
+
         when (gameState) {
             GameState.MENU -> renderMenu(canvas, paint)
             GameState.PLAYING -> renderPlaying(canvas, paint)
