@@ -1,5 +1,7 @@
 package com.example.space_shooter
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -27,6 +29,13 @@ class GameManager(private val gameView: GameView) {
     private val enemies = mutableListOf<Enemy>()
     private val explosions = mutableListOf<Explosion>()
 
+
+    // High Score
+    private var highScore = 0
+    private val PREFS_NAME = "SpaceShooterPrefs"
+    private val KEY_HIGH_SCORE = "high_score"
+    private lateinit var sharedPreferences: SharedPreferences
+
     // Bitmaps
     private lateinit var playerBitmap: Bitmap
     private lateinit var enemyBitmap: Bitmap
@@ -34,7 +43,7 @@ class GameManager(private val gameView: GameView) {
 
     // Sistema de disparo automático
     private var shootTimer = 0f
-    private val shootInterval = 0.15f
+    private val shootInterval = 0.40f // Disparo más lento (2.5 por segundo)
     private var isShooting = false
 
     private var spawnTimer = 0f
@@ -53,6 +62,11 @@ class GameManager(private val gameView: GameView) {
     fun initialize(width: Int, height: Int) {
         screenWidth = width
         screenHeight = height
+
+        // Inicializar SharedPreferences
+        // Inicializar SharedPreferences
+        sharedPreferences = gameView.context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        highScore = sharedPreferences.getInt(KEY_HIGH_SCORE, 0)
 
         // Cargar y escalar recursos
         val originalPlayerBitmap = BitmapFactory.decodeResource(gameView.context.resources, R.drawable.nave_jugador)
@@ -145,15 +159,20 @@ class GameManager(private val gameView: GameView) {
         }
 
         spawnTimer += deltaTime
-        if (spawnTimer >= spawnInterval) {
+        if (spawnTimer >= spawnInterval && enemies.size < 20) {
             spawnTimer = 0f
             spawnEnemies()
         }
 
         checkCollisions()
+    }
 
-        if (enemies.isEmpty() && spawnTimer > spawnInterval - 0.5f) {
-            // Ya no hay oleadas, spawn continuo
+    private fun saveHighScore() {
+        if (score > highScore) {
+            highScore = score
+            val editor = sharedPreferences.edit()
+            editor.putInt(KEY_HIGH_SCORE, highScore)
+            editor.apply()
         }
     }
 
@@ -202,6 +221,7 @@ class GameManager(private val gameView: GameView) {
 
                 if (lives <= 0) {
                     gameState = GameState.GAME_OVER
+                    saveHighScore()
                 }
                 break
             }
@@ -321,6 +341,7 @@ class GameManager(private val gameView: GameView) {
         paint.color = Color.WHITE
         paint.textSize = 50f
         canvas.drawText("Score Final: $score", screenWidth / 2f, screenHeight / 2.5f, paint)
+        canvas.drawText("High Score: $highScore", screenWidth / 2f, screenHeight / 2.2f, paint)
 
         paint.color = Color.CYAN
         canvas.drawRect(menuButton, paint)
@@ -400,6 +421,11 @@ class GameManager(private val gameView: GameView) {
 
         player.reset(screenWidth / 2f, screenHeight - 200f)
 
+        // Spawn inicial de enemigos (aumentado a 8)
+        for(i in 0 until 8) {
+            spawnEnemies()
+        }
+
         gameState = GameState.PLAYING
         lastFrameTime = System.currentTimeMillis()
     }
@@ -421,12 +447,18 @@ class GameManager(private val gameView: GameView) {
     }
 
     fun resume() {
+        if (gameState == GameState.PLAYING) {
+        }
     }
 
     fun handleBackPressed() {
         when (gameState) {
-            GameState.PLAYING -> gameState = GameState.PAUSED
-            GameState.PAUSED -> gameState = GameState.PLAYING
+            GameState.PLAYING -> {
+                gameState = GameState.PAUSED
+            }
+            GameState.PAUSED -> {
+                gameState = GameState.PLAYING
+            }
             else -> {}
         }
     }
